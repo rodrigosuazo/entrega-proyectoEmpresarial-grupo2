@@ -1,0 +1,142 @@
+PROYECTO EMPRESARIAL DE REDES - EQUIPO 2
+DISPOSITIVO: R3
+PLATAFORMA: PNETLab
+
+!
+! Last configuration change at 22:58:35 UTC Fri Oct 23 2026
+!
+version 15.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R3
+!
+boot-start-marker
+boot-end-marker
+!
+aqm-register-fnf
+!
+!
+no aaa new-model
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip domain name empresa-eq2.local
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+username Admin privilege 15 secret 5 $1$BHFC$5pjbY7/mYYoir0xKyB/1U.
+!
+redundancy
+!
+!
+ip ssh version 2
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ no shutdown
+ description ENLACE_R3_R1_OSPF
+ ip address 10.0.13.2 255.255.255.252
+ ipv6 address 2001:25:18:13::2/64
+ ipv6 ospf 10 area 0
+!
+interface Ethernet0/1
+ no shutdown
+ description ENLACE_R3_R2_OSPF
+ ip address 10.0.23.2 255.255.255.252
+ ipv6 address 2001:25:18:23::2/64
+ ipv6 ospf 10 area 0
+!
+interface Ethernet0/2
+ no shutdown
+ description ENLCE_HACIA_ISP
+ ip address 203.0.113.1 255.255.255.252
+ ipv6 address 2001:25:18:100::1/64
+!
+interface Ethernet0/3
+ no shutdown
+ no ip address
+ shutdown
+!
+router ospf 10
+ router-id 3.3.3.3
+ passive-interface default
+ no passive-interface Ethernet0/0
+ no passive-interface Ethernet0/1
+ network 10.0.13.0 0.0.0.3 area 0
+ network 10.0.23.0 0.0.0.3 area 0
+ default-information originate
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 203.0.113.2
+!
+ip access-list standard ADMIN_VTY
+ permit 172.18.10.64 0.0.0.63
+ deny   any
+!
+ipv6 route ::/0 2001:25:18:100::2
+ipv6 router ospf 10
+ router-id 3.3.3.3
+ default-information originate
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ access-class ADMIN_VTY in
+ login local
+ transport input ssh
+!
+!
+end
